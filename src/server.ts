@@ -17,7 +17,7 @@ if (Cluster.isPrimary) {
   }
 
   // Fork the server again if it dies
-  Cluster.on('exit', (_) => {
+  Cluster.on('exit', (_worker) => {
     logger.info('A worker has died!')
     numRetries--
 
