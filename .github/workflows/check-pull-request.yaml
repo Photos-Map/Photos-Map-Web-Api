@@ -63,7 +63,7 @@ jobs:
         run: pnpm install
 
       - name: Run all test cases
-        run: pnpm test --maxWorkers=100%
+        run: pnpm test
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
