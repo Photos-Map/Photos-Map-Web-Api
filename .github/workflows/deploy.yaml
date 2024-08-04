@@ -41,11 +41,16 @@ jobs:
         uses: pnpm/action-setup@v4
 
       - name: Install dependencies
-        run: pnpm install --prod
+        run: pnpm install
 
       - name: Build
         run: |
           pnpm build
+
+      - name: Delete dev dependencies and only install prod dependencies
+        run: |
+          rm -rf ./node_modules
+          pnpm install --prod
 
       # deploy web app using Azure credentials
       - uses: azure/webapps-deploy@v3
