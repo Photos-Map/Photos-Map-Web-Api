@@ -1,7 +1,4 @@
 import express, { Application } from 'express'
 
-const ExpressConfig = (): Application => {
-  const app = express()
-  return app
-}
+const ExpressConfig = (): Application => express()
 export default ExpressConfig
