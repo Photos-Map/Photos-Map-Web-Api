@@ -14,7 +14,7 @@ permissions:
 
 env:
   AZURE_WEBAPP_NAME: Photos-Map-Web-Api
-  AZURE_WEBAPP_PACKAGE_PATH: './dist'
+  AZURE_WEBAPP_PACKAGE_PATH: '.'
   NODE_VERSION: '20.x'
 
 jobs:
