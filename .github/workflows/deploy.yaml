@@ -48,7 +48,9 @@ jobs:
           pnpm build
 
       - name: Delete dev dependencies and only install prod dependencies
-        run: pnpm install
+        run: |
+          rm -rf ./node_modules
+          pnpm install --prod
 
       # deploy web app using Azure credentials
       - uses: azure/webapps-deploy@v3
