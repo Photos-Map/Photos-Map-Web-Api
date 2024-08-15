@@ -15,3 +15,26 @@
 1. To build the app, run `docker build -t photos-map-web-api .`
 
 2. To run the app, run `docker run -p 8080:3000 photos-map-web-api`
+
+## Generating keys
+
+1. Generate public and private keys by running:
+
+```
+openssl genpkey -algorithm ed25519 -out private.pem
+openssl pkey -in private.pem -pubout -out public.pem
+```
+
+It will create two files: `private.pem` and `public.pem`.
+
+2. Now, run this to set the `private.pem` file as the environment variable `JWT_PRIVATE_KEY`:
+
+```
+export JWT_PRIVATE_KEY=$(tr -d '\n' < private.pem)
+```
+
+3. Similarly, run this to set the `public.pem` file as the environment variable `JWT_PUBLIC_KEY`:
+
+```
+export JWT_PUBLIC_KEY=$(tr -d '\n' < public.pem)
+```
