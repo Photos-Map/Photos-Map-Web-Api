@@ -16,6 +16,14 @@
 
 2. To run the app, run `docker run -p 8080:3000 photos-map-web-api`
 
+## Running lints and tests
+
+1. To find linting issues, run `pnpm lint`
+
+2. To fix linting issues, run `pnpm lint:fix`
+
+3. To run tests, run `pnpm test`
+
 ## Generating keys
 
 1. Generate public and private keys by running:

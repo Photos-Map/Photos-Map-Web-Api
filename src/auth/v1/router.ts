@@ -30,6 +30,8 @@ export default async function () {
     'EdDSA'
   )
 
+  const expiryMillis = Number(process.env.JWT_EXPIRY_IN_MILLISECONDS) || 3600000
+
   const router: Router = Router()
   router.get(
     '/auth/v1/google',
@@ -49,21 +51,21 @@ export default async function () {
     }),
     async (req: Request, res: Response) => {
       const profile = req.user as Profile
+
+      const tokenExpiryTime = new Date(Date.now() + expiryMillis)
       const token = await new SignJWT({ id: profile.id })
         .setProtectedHeader({ alg: 'EdDSA' })
         .setIssuedAt()
         .setIssuer('Photos-Map-Web-Api')
         .setAudience('http://localhost:3000')
-        .setExpirationTime('1h')
+        .setExpirationTime(tokenExpiryTime)
         .sign(secretKey)
-
-      logger.debug(`Access token: ${token}`)
 
       res.cookie('access_token', token, {
         secure: true,
         httpOnly: true,
         sameSite: 'strict',
-        expires: new Date(Date.now() + 1 * 3600000)
+        expires: tokenExpiryTime
       })
       res.redirect('/photos')
     }
