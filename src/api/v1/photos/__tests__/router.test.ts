@@ -6,17 +6,17 @@ import cookieParser from 'cookie-parser'
 
 describe('GET api/v1/photos', () => {
   const originalEnv = process.env
-  const publicKey =
+  const fakePublicKey =
     '-----BEGIN PUBLIC KEY-----MCowBQYDK2VwAyEADPItlNZv8oKHe/TVm4b04lfw1tvY8dde52zmWzk8hg4=-----END PUBLIC KEY-----%'
-  const privateKey =
+  const fakePrivateKey =
     '-----BEGIN PRIVATE KEY-----MC4CAQAwBQYDK2VwBCIEIG2LxwXdQJFmm2E3jNdvVoDzFp1EUisEuzteaAd3Wpw7-----END PRIVATE KEY-----%'
 
   beforeEach(() => {
     jest.resetModules()
     process.env = {
       ...originalEnv,
-      JWT_PUBLIC_KEY: publicKey,
-      JWT_PRIVATE_KEY: privateKey
+      JWT_PUBLIC_KEY: fakePublicKey,
+      JWT_PRIVATE_KEY: fakePrivateKey
     }
   })
 
@@ -71,6 +71,6 @@ describe('GET api/v1/photos', () => {
       .set('Cookie', ['access_token=1234'])
 
     expect(res.statusCode).toEqual(401)
-    expect(res.body.error).toEqual('Invalid token')
+    expect(res.body.error).toEqual('ERR_JWS_INVALID')
   })
 })

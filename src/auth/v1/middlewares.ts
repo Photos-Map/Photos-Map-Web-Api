@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { jwtVerify, importSPKI } from 'jose'
+import { jwtVerify, importSPKI, errors } from 'jose'
 import logger from './../../logger'
 
 /**
@@ -21,7 +21,11 @@ export async function verifyAccessToken() {
       next()
     } catch (e) {
       logger.debug(`Error verifying token: ${e}`)
-      return res.status(401).json({ error: 'Invalid token' })
+
+      if (e instanceof errors.JOSEError) {
+        return res.status(401).json({ error: e.code })
+      }
+      return res.status(401).json({ error: e })
     }
   }
 }

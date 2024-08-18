@@ -2,7 +2,6 @@ import { Router, Request, Response } from 'express'
 import passport from 'passport'
 import { Strategy, VerifyCallback, Profile } from 'passport-google-oauth20'
 import { SignJWT, importPKCS8 } from 'jose'
-import logger from '../../logger'
 
 export default async function () {
   passport.use(
@@ -18,8 +17,6 @@ export default async function () {
         profile: Profile,
         done: VerifyCallback
       ) {
-        logger.info(`Profile: ${JSON.stringify(profile)}`)
-
         return done(null, profile)
       }
     )
@@ -38,9 +35,8 @@ export default async function () {
     passport.authenticate('google', { scope: ['profile'] })
   )
 
-  router.get('/auth/v1/google/failed', async (req: Request, res: Response) => {
-    console.log(req)
-    res.send('Login failed')
+  router.get('/auth/v1/google/failed', async (_req: Request, res: Response) => {
+    res.status(401).send('Login failed')
   })
 
   router.get(
@@ -71,14 +67,9 @@ export default async function () {
     }
   )
 
-  router.get(
-    '/auth/v1/google/refresh',
-    async (_req: Request, _res: Response) => {}
-  )
-
   router.get('/auth/v1/google/logout', async (_req: Request, res: Response) => {
     res.clearCookie('access_token')
-    res.send('OK')
+    res.redirect('/')
   })
 
   return router
