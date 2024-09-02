@@ -40,7 +40,7 @@ describe('GET auth/v1/google', () => {
 
     expect(res.statusCode).toEqual(302)
     expect(res.headers['location']).toEqual(
-      'https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fphotos&scope=profile&client_id=123'
+      'https://accounts.google.com/o/oauth2/v2/auth?prompt=select_account&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fphotos&scope=profile&client_id=123'
     )
   })
 })

@@ -32,7 +32,10 @@ export default async function () {
   const router: Router = Router()
   router.get(
     '/auth/v1/google',
-    passport.authenticate('google', { scope: ['profile'] })
+    passport.authenticate('google', {
+      scope: ['profile'],
+      prompt: 'select_account'
+    })
   )
 
   router.get('/auth/v1/google/failed', async (_req: Request, res: Response) => {

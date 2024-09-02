@@ -35,4 +35,12 @@ if (Cluster.isPrimary) {
     port: parseInt(process.env.PORT || '3000')
   })
   app.run()
+
+  process.on('SIGINT', async () => {
+    await app.shutdown()
+  })
+
+  process.on('exit', async () => {
+    await app.shutdown()
+  })
 }
