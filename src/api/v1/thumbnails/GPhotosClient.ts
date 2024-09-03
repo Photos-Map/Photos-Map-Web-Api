@@ -66,6 +66,7 @@ export class GPhotosClient {
 
   async getMediaItem(mediaItemId: string): Promise<MediaItem> {
     const response = await backOff(async () => {
+      logger.debug("I am here")
       const url = `https://photoslibrary.googleapis.com/v1/mediaItems/${mediaItemId}`
       const headers = {
         'Content-Type': 'application/json',
@@ -73,13 +74,13 @@ export class GPhotosClient {
       }
 
       try {
-        return axios.get(url, { headers })
+        return await axios.get(url, { headers })
       } catch (error) {
-        logger.info(`Error fetching ${url} - retrying`)
+        logger.debug(`Error fetching ${url} - retrying`)
 
         if (axios.isAxiosError(error)) {
           if ((error as AxiosError).response?.status === 401) {
-            logger.info('Refreshing access token')
+            logger.debug('Refreshing access token')
             await this.refreshAccessToken()
           }
         }

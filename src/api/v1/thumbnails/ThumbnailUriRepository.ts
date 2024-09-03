@@ -1,5 +1,6 @@
 import { LRUCache } from 'lru-cache'
 import { GPhotosAccountRepository } from './GPhotosAccountRepository'
+import logger from '../../../logger'
 
 export class ThumbnailUriRepository {
   private gphotosAccountRepository: GPhotosAccountRepository
@@ -16,11 +17,14 @@ export class ThumbnailUriRepository {
   ): Promise<string> {
     const cachedResult = this.thumbnailUriCache.get(thumbnailId)
     if (cachedResult) {
+      logger.debug('Found thumbnail uri in cache')
       return Promise.resolve(cachedResult)
     }
 
     const client =
       await this.gphotosAccountRepository.getGPhotosClient(gPhotosAccountName)
+
+    logger.debug('Fetched client')
 
     const mediaItem = await client.getMediaItem(thumbnailId)
     const thumbnailUri = mediaItem.baseUrl

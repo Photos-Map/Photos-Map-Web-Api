@@ -49,7 +49,7 @@ export JWT_PUBLIC_KEY=$(tr -d '\n' < public.pem)
 
 ## Sample requests:
 
-http://localhost:3000/api/v1/photos?b=37.822265x-123.775075x36.771486x-120.646822
+http://localhost:3000/api/v1/photos?b=37.822x-123.775x36.771x-120.646
 
 
 http://localhost:3000/api/v1/thumbnails/ANjHXp0EcYcPzYX-l9qSYr5WgVPuiO1zgtx35h_svfGKnhdw3r9JPuISoJ6YUDDXfs3F6YyQNBrz5D-jZFmm6oBNCSYCE3lqwA?account=vanillalatte98starbucks@gmail.com
