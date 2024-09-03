@@ -53,11 +53,12 @@ export default async function () {
       const profile = req.user as Profile
 
       const tokenExpiryTime = new Date(Date.now() + expiryMillis)
-      const token = await new SignJWT({ id: profile.id })
+      const token = await new SignJWT()
         .setProtectedHeader({ alg: 'EdDSA' })
         .setIssuedAt()
         .setIssuer('Photos-Map-Web-Api')
         .setAudience('http://localhost:3000')
+        .setSubject(profile.id)
         .setExpirationTime(tokenExpiryTime)
         .sign(secretKey)
 

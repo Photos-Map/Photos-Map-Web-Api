@@ -1,23 +1,26 @@
 import { Router } from 'express'
 import { wrap } from 'async-middleware'
-import { verifyAccessToken } from '../../../auth/v1/middlewares'
+import {
+  verifyAuthentication,
+  verifyAuthorization
+} from '../../../auth/v1/middlewares'
 import logger from '../../../logger'
 import { PhotosRepository, Coordinate } from './PhotosRepository'
-import { ThumbnailUriRepository } from './ThumbnailUriRepository'
 
-export default async function (
-  queryService: PhotosRepository,
-  thumbnailUriRepository: ThumbnailUriRepository
-) {
+export default async function (queryService: PhotosRepository) {
   const router: Router = Router()
 
   router.get(
     '/api/v1/photos',
-    await verifyAccessToken(),
+    await verifyAuthentication(),
+    await verifyAuthorization(),
     wrap(async (req, res) => {
       if (!req.query.b) {
         res.send(400).json({ message: "Missing 'b' query" })
       }
+
+      const lastId = req.query.lastId as string
+      const limit = Number(req.query.limit || '50')
 
       const boundaries = (req.query.b as string).split('x')
       logger.info(`Boundaries: ${boundaries}`)
@@ -34,33 +37,14 @@ export default async function (
         res.send(400).json({ message: (error as Error).name })
       }
 
-      const photos = await queryService.getPhotosFromBoundary(
-        bottomLeftCoordinates,
-        topRightCoordinates
-      )
+      const photos = await queryService.getPhotosFromBoundary({
+        bottomLeftCoordinates: bottomLeftCoordinates,
+        topRightCoordinates: topRightCoordinates,
+        lastId: lastId,
+        limit: limit
+      })
 
       return res.status(200).json(photos)
-    })
-  )
-
-  router.get(
-    '/api/v1/thumbnails/:id',
-    await verifyAccessToken(),
-    wrap(async (req, res) => {
-      if (!req.query.account) {
-        return res.status(400).json({ error: 'Missing account query param' })
-      }
-
-      console.log(req.query.account, req.params.id)
-
-      const uri = await thumbnailUriRepository.getThumbnailUri(
-        req.query.account as string,
-        req.params.id
-      )
-
-      console.log(req.query.account, req.params.id)
-
-      res.status(200).json({ thumbnailUri: uri })
     })
   )
 

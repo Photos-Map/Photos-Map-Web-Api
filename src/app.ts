@@ -6,11 +6,12 @@ import { MongoClient } from 'mongodb'
 import expressLogger from 'pino-http'
 import healthRouter from './api/v1/health/router'
 import photosRouter from './api/v1/photos/router'
+import thumbnailsRouter from './api/v1/thumbnails/router'
 import { PhotosRepository } from './api/v1/photos/PhotosRepository'
 import authRouter from './auth/v1/router'
 import logger from './logger'
-import { ThumbnailUriRepository } from './api/v1/photos/ThumbnailUriRepository'
-import { GPhotosAccountRepository } from './api/v1/photos/GPhotosAccountRepository'
+import { ThumbnailUriRepository } from './api/v1/thumbnails/ThumbnailUriRepository'
+import { GPhotosAccountRepository } from './api/v1/thumbnails/GPhotosAccountRepository'
 
 export class App {
   private app: Application
@@ -48,9 +49,8 @@ export class App {
 
     this.app.use(healthRouter())
     this.app.use(await authRouter())
-    this.app.use(
-      await photosRouter(this.photosRepository, this.thumbnailUriRepository)
-    )
+    this.app.use(await photosRouter(this.photosRepository))
+    this.app.use(await thumbnailsRouter(this.thumbnailUriRepository))
 
     this.app.listen(this.port, () =>
       logger.info(`Server Running on Port ${this.port}`)

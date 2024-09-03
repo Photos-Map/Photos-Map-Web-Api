@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "nodemon src/server.ts | pino-pretty",
+    "dev": "cross-env TS_NODE_FILES=true TS_NODE_TRANSPILE_ONLY=true nodemon src/server.ts | pino-pretty",
     "build": "tsc",
     "start": "node dist/server.js",
     "lint": "eslint src && prettier src --check",
@@ -49,6 +49,7 @@
     "@types/passport-google-oauth20": "^2.0.16",
     "@types/qs": "^6.9.15",
     "@types/supertest": "^6.0.2",
+    "cross-env": "^7.0.3",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-security": "^3.0.1",
