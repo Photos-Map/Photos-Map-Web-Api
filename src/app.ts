@@ -39,6 +39,7 @@ export class App {
 
   async run() {
     this.mongoDbClient.connect()
+    await this.mongoDbClient.db('admin').command({ ping: 1 })
 
     this.app.use(compression())
     this.app.use(helmet())

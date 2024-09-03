@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      async-middleware:
+        specifier: ^1.2.1
+        version: 1.2.1
       axios:
         specifier: ^1.7.7
         version: 1.7.7
@@ -719,6 +722,9 @@ packages:
 
   asap@2.0.6:
     resolution: {integrity: sha512-BSHWgDSAiKs50o2Re8ppvp3seVHXSRM44cdSsT9FfNEUUZLOGWVCsiWaRPWM1Znn+mqZ1OfVZ3z3DWEzSp7hRA==}
+
+  async-middleware@1.2.1:
+    resolution: {integrity: sha512-ZUdXtz7wn6zLLxlom4Q+qD0xi3pu6Bb9icCVHRzr8S3Gd7reGChEotlEZRQ/I/IUaMMVKFX3UeaZok+vDbmUAg==}
 
   async@3.2.5:
     resolution: {integrity: sha512-baNZyqaaLhyLVKm/DlvdW051MSgO6b8eVfIezl9E5PqWxFgzLm/wQntEW4zOytVburDEr0JlALEpdOFwvErLsg==}
@@ -3251,6 +3257,8 @@ snapshots:
   array-union@2.1.0: {}
 
   asap@2.0.6: {}
+
+  async-middleware@1.2.1: {}
 
   async@3.2.5: {}
 

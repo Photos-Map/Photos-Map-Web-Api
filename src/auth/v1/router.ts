@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express'
 import passport from 'passport'
 import { Strategy, VerifyCallback, Profile } from 'passport-google-oauth20'
+import { wrap } from 'async-middleware'
 import { SignJWT, importPKCS8 } from 'jose'
 
 export default async function () {
@@ -38,7 +39,7 @@ export default async function () {
     })
   )
 
-  router.get('/auth/v1/google/failed', async (_req: Request, res: Response) => {
+  router.get('/auth/v1/google/failed', (_req: Request, res: Response) => {
     res.status(401).send('Login failed')
   })
 
@@ -48,7 +49,7 @@ export default async function () {
       failureRedirect: '/auth/v1/google/failed',
       session: false
     }),
-    async (req: Request, res: Response) => {
+    wrap(async (req: Request, res: Response) => {
       const profile = req.user as Profile
 
       const tokenExpiryTime = new Date(Date.now() + expiryMillis)
@@ -67,13 +68,16 @@ export default async function () {
         expires: tokenExpiryTime
       })
       res.redirect('/photos')
-    }
+    })
   )
 
-  router.get('/auth/v1/google/logout', async (_req: Request, res: Response) => {
-    res.clearCookie('access_token')
-    res.redirect('/')
-  })
+  router.get(
+    '/auth/v1/google/logout',
+    wrap(async (_req: Request, res: Response) => {
+      res.clearCookie('access_token')
+      res.redirect('/')
+    })
+  )
 
   return router
 }
