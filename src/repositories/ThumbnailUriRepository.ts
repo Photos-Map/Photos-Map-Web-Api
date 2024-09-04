@@ -1,6 +1,6 @@
 import { LRUCache } from 'lru-cache'
 import { GPhotosAccountRepository } from './GPhotosAccountRepository'
-import logger from '../../../logger'
+import logger from '../common/logger'
 
 export class ThumbnailUriRepository {
   private gphotosAccountRepository: GPhotosAccountRepository

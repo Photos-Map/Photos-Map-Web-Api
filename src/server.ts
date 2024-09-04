@@ -3,7 +3,7 @@ import Process from 'process'
 import dotenv from 'dotenv'
 import OS from 'os'
 import { App } from './app'
-import logger from './logger'
+import logger from './common/logger'
 
 let numRetries = 10
 

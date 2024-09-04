@@ -17,8 +17,6 @@ export type Photo = {
   path?: string
   gphotosAccountName?: string
   thumbnailId?: string
-  thumbnailUri?: string
-  productUri?: string
   latitude: number
   longitude: number
 }

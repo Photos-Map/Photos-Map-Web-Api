@@ -2,7 +2,7 @@ import axios, { AxiosError } from 'axios'
 import qs from 'qs'
 import { backOff } from 'exponential-backoff'
 import { BehaviorSubject } from 'rxjs'
-import logger from '../../../logger'
+import logger from '../common/logger'
 
 export type GPhotosCredentials = {
   accessToken: string

@@ -1,7 +1,7 @@
 import request from 'supertest'
 import express from 'express'
 import nock from 'nock'
-import authRouter from '../router'
+import authRouter from '../authentication'
 import cookieParser from 'cookie-parser'
 
 const originalEnv = process.env

@@ -1,11 +1,9 @@
 import { Router } from 'express'
 import { wrap } from 'async-middleware'
-import {
-  verifyAuthentication,
-  verifyAuthorization
-} from '../../../auth/v1/middlewares'
-import logger from '../../../logger'
-import { PhotosRepository, Coordinate } from './PhotosRepository'
+import { verifyAuthentication } from '../middlewares/authentication'
+import { verifyAuthorization } from '../middlewares/authorization'
+import logger from '../common/logger'
+import { PhotosRepository, Coordinate } from '../repositories/PhotosRepository'
 
 export default async function (queryService: PhotosRepository) {
   const router: Router = Router()
