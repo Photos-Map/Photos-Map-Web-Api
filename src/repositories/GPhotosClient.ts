@@ -81,30 +81,28 @@ export class GPhotosClient {
    * @returns details of the media item
    */
   async getMediaItem(mediaItemId: string): Promise<MediaItem> {
-    const response = await backOff(
-      async () => {
-        const url = `https://photoslibrary.googleapis.com/v1/mediaItems/${mediaItemId}`
-        const headers = {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.latestCredentials?.accessToken}`
-        }
-
-        try {
-          return await axios.get(url, { headers })
-        } catch (error) {
-          logger.debug(`Error fetching ${url} - retrying`)
-
-          if (axios.isAxiosError(error)) {
-            if ((error as AxiosError).response?.status === 401) {
-              logger.debug('Refreshing access token')
-              await this.refreshAccessToken()
-            }
-          }
-
-          throw error
-        }
+    const response = await backOff(async () => {
+      const url = `https://photoslibrary.googleapis.com/v1/mediaItems/${mediaItemId}`
+      const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.latestCredentials?.accessToken}`
       }
-    )
+
+      try {
+        return await axios.get(url, { headers })
+      } catch (error) {
+        logger.debug(`Error fetching ${url} - retrying`)
+
+        if (axios.isAxiosError(error)) {
+          if ((error as AxiosError).response?.status === 401) {
+            logger.debug('Refreshing access token')
+            await this.refreshAccessToken()
+          }
+        }
+
+        throw error
+      }
+    })
 
     return response.data as MediaItem
   }
