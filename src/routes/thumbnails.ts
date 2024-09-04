@@ -16,18 +16,11 @@ export default async function (thumbnailUriRepository: ThumbnailUriRepository) {
         return res.status(400).json({ error: 'Missing account query param' })
       }
 
-      let uri = ''
-      if (req.query.forceRefresh) {
-        uri = await thumbnailUriRepository.refetchThumbnailUri(
-          req.query.account as string,
-          req.params.id
-        )
-      } else {
-        uri = await thumbnailUriRepository.getThumbnailUri(
-          req.query.account as string,
-          req.params.id
-        )
-      }
+      const uri = await thumbnailUriRepository.getThumbnailUri(
+        req.query.account as string,
+        req.params.id,
+        req.query.forceRefresh === 'true'
+      )
 
       res.status(308).redirect(uri)
     })

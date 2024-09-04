@@ -51,11 +51,20 @@ export type PhotoMediaMetadata = {
   }
 }
 
+/**
+ * A class that represents an account on Google Photos.
+ * It should be able to do the same stuff as in {@link https://developers.google.com/photos/library/reference/rest}.
+ */
 export class GPhotosClient {
   private credentialsSubject: BehaviorSubject<GPhotosCredentials>
   private latestCredentials?: GPhotosCredentials
   private name: string
 
+  /**
+   * Constructs the {@code GPhotosClient} class.
+   * @param name the name of the Google Photos account.
+   * @param credentials the account credentials that is observable.
+   */
   constructor(name: string, credentials: BehaviorSubject<GPhotosCredentials>) {
     this.name = name
     this.credentialsSubject = credentials
@@ -64,9 +73,16 @@ export class GPhotosClient {
     })
   }
 
+  /**
+   * Fetches information about a media item
+   * It makes the same API call as in {@link https://developers.google.com/photos/library/reference/rest/v1/mediaItems/get}
+   *
+   * @param mediaItemId the media item ID
+   * @returns details of the media item
+   */
   async getMediaItem(mediaItemId: string): Promise<MediaItem> {
     const response = await backOff(async () => {
-      logger.debug("I am here")
+      logger.debug('I am here')
       const url = `https://photoslibrary.googleapis.com/v1/mediaItems/${mediaItemId}`
       const headers = {
         'Content-Type': 'application/json',

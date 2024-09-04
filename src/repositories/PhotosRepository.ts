@@ -21,13 +21,25 @@ export type Photo = {
   longitude: number
 }
 
+/**
+ * A class that fetches photos from MongoDB
+ */
 export class PhotosRepository {
   private client: MongoClient
 
+  /**
+   * Constructs the {@code PhotosRepository} class
+   * @param mongoDbClient the MongoDB client
+   */
   constructor(mongoDbClient: MongoClient) {
     this.client = mongoDbClient
   }
 
+  /**
+   * Returns a list of photos via pagination
+   * @param args the args for the query
+   * @returns a list of photos
+   */
   public async getPhotosFromBoundary(
     args: GetPhotosFromBoundaryArgs
   ): Promise<Photo[]> {
