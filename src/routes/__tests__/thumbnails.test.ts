@@ -1,23 +1,12 @@
 import request from 'supertest'
 import express from 'express'
 import { SignJWT, importPKCS8 } from 'jose'
-import photosRouter from '../photos'
+import thumbnailsRouter from '../thumbnails'
 import cookieParser from 'cookie-parser'
 import { mock } from 'jest-mock-extended'
-import { PhotosRepository } from '../../repositories/PhotosRepository'
+import { ThumbnailUriRepository } from '../../repositories/ThumbnailUriRepository'
 
-const fakePhotos = [
-  {
-    id: '123',
-    path: 'Archives/Photos/2010/1.jpg',
-    gphotosAccountName: 'bob@gmail.com',
-    thumbnailId: '1234',
-    latitude: 128,
-    longitude: 30
-  }
-]
-
-describe('GET api/v1/photos', () => {
+describe('GET /api/v1/thumbnails/:id', () => {
   const originalEnv = process.env
   const fakePublicKey =
     '-----BEGIN PUBLIC KEY-----MCowBQYDK2VwAyEADPItlNZv8oKHe/TVm4b04lfw1tvY8dde52zmWzk8hg4=-----END PUBLIC KEY-----%'
@@ -51,32 +40,33 @@ describe('GET api/v1/photos', () => {
     process.env = originalEnv
   })
 
-  it('should return 200 with correct body response, given correct parameters', async () => {
-    const mockPhotosRepository = mock<PhotosRepository>()
-    mockPhotosRepository.getPhotosFromBoundary.mockResolvedValue(fakePhotos)
+  it('should return 301 given correct access token and correct resources', async () => {
+    const thumbnailUri = 'http://thumbnail.com'
+    const mockThumbnailsUriRepository = mock<ThumbnailUriRepository>()
+    mockThumbnailsUriRepository.getThumbnailUri.mockResolvedValue(thumbnailUri)
     const app = express()
     app.use(cookieParser())
-    app.use(await photosRouter(mockPhotosRepository))
+    app.use(await thumbnailsRouter(mockThumbnailsUriRepository))
 
     const res = await request(app)
-      .get('/api/v1/photos?b=37.822x-123.775x36.771x-120.646')
+      .get('/api/v1/thumbnails/123?account=bob@gmail.com')
       .set('Cookie', [`access_token=${token}`])
 
-    expect(res.statusCode).toEqual(200)
-    expect(res.body).toEqual(fakePhotos)
+    expect(res.statusCode).toEqual(302)
+    expect(res.headers['location']).toEqual(thumbnailUri)
   })
 
-  it('should return error code, given error from PhotosRepository', async () => {
-    const mockPhotosRepository = mock<PhotosRepository>()
-    mockPhotosRepository.getPhotosFromBoundary.mockRejectedValue(
-      new Error('Random error')
+  it('should return error code given ThumbnailUriRepository throws an exception', async () => {
+    const mockThumbnailsUriRepository = mock<ThumbnailUriRepository>()
+    mockThumbnailsUriRepository.getThumbnailUri.mockRejectedValue(
+      new Error('Unknown error')
     )
     const app = express()
     app.use(cookieParser())
-    app.use(await photosRouter(mockPhotosRepository))
+    app.use(await thumbnailsRouter(mockThumbnailsUriRepository))
 
     const res = await request(app)
-      .get('/api/v1/photos?b=37.822x-123.775x36.771x-120.646')
+      .get('/api/v1/thumbnails/123?account=bob@gmail.com')
       .set('Cookie', [`access_token=${token}`])
 
     expect(res.statusCode).toEqual(500)
