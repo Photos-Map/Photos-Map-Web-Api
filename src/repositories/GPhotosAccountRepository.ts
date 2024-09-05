@@ -1,24 +1,27 @@
-import { MongoClient, Collection, Document } from 'mongodb'
-import { BehaviorSubject } from 'rxjs'
+import { MongoClient } from 'mongodb'
+import { BehaviorSubject, Subscription } from 'rxjs'
 import { GPhotosClient, GPhotosCredentials } from './GPhotosClient'
 
 export class GPhotosAccountRepository {
-  private gPhotoAccountsCollection: Collection<Document>
+  private mongoDbClient: MongoClient
   private gPhotoClients = new Map<string, GPhotosClient>()
+  private subscriptions = Array<Subscription>()
 
   constructor(mongoDbClient: MongoClient) {
-    this.gPhotoAccountsCollection = mongoDbClient
-      .db('photo_map_db')
-      .collection('gphoto_accounts')
+    this.mongoDbClient = mongoDbClient
   }
 
   async getGPhotosClient(gphotosAccountName: string): Promise<GPhotosClient> {
+    const collection = this.mongoDbClient
+      .db('photo_map_db')
+      .collection('gphoto_accounts')
+
     const cachedGPhotosClient = this.gPhotoClients.get(gphotosAccountName)
     if (cachedGPhotosClient) {
       return Promise.resolve(cachedGPhotosClient)
     }
 
-    const accountCredentials = await this.gPhotoAccountsCollection.findOne({
+    const accountCredentials = await collection.findOne({
       name: gphotosAccountName
     })
 
@@ -26,28 +29,38 @@ export class GPhotosAccountRepository {
       throw new NoGPhotosAccountFound(gphotosAccountName)
     }
 
-    const credentials = new BehaviorSubject<GPhotosCredentials>({
+    const initialCredentials = {
       accessToken: accountCredentials['token'],
       refreshToken: accountCredentials['refresh_token'],
       clientId: process.env.GOOGLE_CLIENT_ID || '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || ''
-    })
+    }
+    const credentials = new BehaviorSubject<GPhotosCredentials>(
+      initialCredentials
+    )
 
     // Update the database async-ly when new credentials are refreshed
-    credentials.subscribe((newCredentials) => {
-      const newValuesQuery = {
-        $set: {
-          token: newCredentials.accessToken,
-          refresh_token: newCredentials.refreshToken
+    const subscriber = credentials.subscribe((newCredentials) => {
+      if (newCredentials !== initialCredentials) {
+        const newValuesQuery = {
+          $set: {
+            token: newCredentials.accessToken,
+            refresh_token: newCredentials.refreshToken
+          }
         }
+        collection.updateOne({ name: gphotosAccountName }, newValuesQuery)
       }
-      this.gPhotoAccountsCollection.updateOne(
-        { name: gphotosAccountName },
-        newValuesQuery
-      )
     })
+    this.subscriptions.push(subscriber)
 
-    return new GPhotosClient(gphotosAccountName, credentials)
+    const gPhotosClient = new GPhotosClient(gphotosAccountName, credentials)
+    this.gPhotoClients.set(gphotosAccountName, gPhotosClient)
+    return gPhotosClient
+  }
+
+  public close() {
+    this.subscriptions.forEach((sub) => sub.unsubscribe())
+    this.subscriptions = Array<Subscription>()
   }
 }
 

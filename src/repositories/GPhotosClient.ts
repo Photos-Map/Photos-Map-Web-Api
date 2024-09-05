@@ -73,6 +73,10 @@ export class GPhotosClient {
     })
   }
 
+  public getName(): string {
+    return this.name
+  }
+
   /**
    * Fetches information about a media item
    * It makes the same API call as in {@link https://developers.google.com/photos/library/reference/rest/v1/mediaItems/get}

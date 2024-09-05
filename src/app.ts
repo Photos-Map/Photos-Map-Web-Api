@@ -58,6 +58,8 @@ export class App {
   }
 
   async shutdown() {
+    this.gPhotosAccountRepository.close()
+
     logger.info('MongoDB client closing')
     this.mongoDbClient.close()
     logger.info('MongoDB client closed')
