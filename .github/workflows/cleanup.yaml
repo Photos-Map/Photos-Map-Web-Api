@@ -1,3 +1,8 @@
+name: 🧼 Clean up environment
+on:
+  push:
+    branches: [main]
+
 jobs:
   cleanup:
     runs-on: ubuntu-latest
