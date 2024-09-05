@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express'
 import passport from 'passport'
 import { Strategy, VerifyCallback, Profile } from 'passport-google-oauth20'
+import { wrap } from 'async-middleware'
 import { SignJWT, importPKCS8 } from 'jose'
 
 export default async function () {
@@ -32,10 +33,13 @@ export default async function () {
   const router: Router = Router()
   router.get(
     '/auth/v1/google',
-    passport.authenticate('google', { scope: ['profile'] })
+    passport.authenticate('google', {
+      scope: ['profile'],
+      prompt: 'select_account'
+    })
   )
 
-  router.get('/auth/v1/google/failed', async (_req: Request, res: Response) => {
+  router.get('/auth/v1/google/failed', (_req: Request, res: Response) => {
     res.status(401).send('Login failed')
   })
 
@@ -45,15 +49,16 @@ export default async function () {
       failureRedirect: '/auth/v1/google/failed',
       session: false
     }),
-    async (req: Request, res: Response) => {
+    wrap(async (req: Request, res: Response) => {
       const profile = req.user as Profile
 
       const tokenExpiryTime = new Date(Date.now() + expiryMillis)
-      const token = await new SignJWT({ id: profile.id })
+      const token = await new SignJWT()
         .setProtectedHeader({ alg: 'EdDSA' })
         .setIssuedAt()
         .setIssuer('Photos-Map-Web-Api')
         .setAudience('http://localhost:3000')
+        .setSubject(profile.id)
         .setExpirationTime(tokenExpiryTime)
         .sign(secretKey)
 
@@ -64,13 +69,16 @@ export default async function () {
         expires: tokenExpiryTime
       })
       res.redirect('/photos')
-    }
+    })
   )
 
-  router.get('/auth/v1/google/logout', async (_req: Request, res: Response) => {
-    res.clearCookie('access_token')
-    res.redirect('/')
-  })
+  router.get(
+    '/auth/v1/google/logout',
+    wrap(async (_req: Request, res: Response) => {
+      res.clearCookie('access_token')
+      res.redirect('/')
+    })
+  )
 
   return router
 }

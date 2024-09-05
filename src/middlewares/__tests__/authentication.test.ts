@@ -1,10 +1,10 @@
 import request from 'supertest'
 import express from 'express'
 import { SignJWT, importPKCS8 } from 'jose'
-import photosRouter from '../router'
 import cookieParser from 'cookie-parser'
+import { verifyAuthentication } from '../authentication'
 
-describe('GET api/v1/photos', () => {
+describe('verifyAuthentication()', () => {
   const originalEnv = process.env
   const fakePublicKey =
     '-----BEGIN PUBLIC KEY-----MCowBQYDK2VwAyEADPItlNZv8oKHe/TVm4b04lfw1tvY8dde52zmWzk8hg4=-----END PUBLIC KEY-----%'
@@ -24,7 +24,7 @@ describe('GET api/v1/photos', () => {
     process.env = originalEnv
   })
 
-  it('should return OK, given correct parameters', async () => {
+  it('should return 200, given correct access token', async () => {
     const secretKey = await importPKCS8(
       process.env.JWT_PRIVATE_KEY || '',
       'EdDSA'
@@ -40,22 +40,34 @@ describe('GET api/v1/photos', () => {
 
     const app = express()
     app.use(cookieParser())
-    app.use(await photosRouter())
+    app.get(
+      '/api/v1/protected-resource',
+      await verifyAuthentication(),
+      (_req, res) => {
+        res.send('OK')
+      }
+    )
 
     const res = await request(app)
-      .get('/api/v1/photos?b=1x2x3x4')
+      .get('/api/v1/protected-resource')
       .set('Cookie', [`access_token=${token}`])
 
     expect(res.statusCode).toEqual(200)
-    expect(res.text).toEqual('Getting photos...')
+    expect(res.text).toEqual('OK')
   })
 
   it('should return 401 with error message, given no access token', async () => {
     const app = express()
     app.use(cookieParser())
-    app.use(await photosRouter())
+    app.get(
+      '/api/v1/protected-resource',
+      await verifyAuthentication(),
+      (_req, res) => {
+        res.send('OK')
+      }
+    )
 
-    const res = await request(app).get('/api/v1/photos?b=1x2x3x4')
+    const res = await request(app).get('/api/v1/protected-resource')
 
     expect(res.statusCode).toEqual(401)
     expect(res.body.error).toEqual('Missing access token')
@@ -64,10 +76,16 @@ describe('GET api/v1/photos', () => {
   it('should return 401 with error message, given invalid access token', async () => {
     const app = express()
     app.use(cookieParser())
-    app.use(await photosRouter())
+    app.get(
+      '/api/v1/protected-resource',
+      await verifyAuthentication(),
+      (_req, res) => {
+        res.send('OK')
+      }
+    )
 
     const res = await request(app)
-      .get('/api/v1/photos?b=1x2x3x4')
+      .get('/api/v1/protected-resource')
       .set('Cookie', ['access_token=1234'])
 
     expect(res.statusCode).toEqual(401)

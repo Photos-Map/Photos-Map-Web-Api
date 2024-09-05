@@ -1,12 +1,16 @@
 import { Request, Response, NextFunction } from 'express'
 import { jwtVerify, importSPKI, errors } from 'jose'
-import logger from './../../logger'
+import logger from '../common/logger'
+
+export type DecodedAccessToken = {
+  id: string
+}
 
 /**
- * Middleware that verifies access tokens from cookies
+ * Middleware that checks if the access token is valid
  * @returns an Express middleware
  */
-export async function verifyAccessToken() {
+export async function verifyAuthentication() {
   const publicKey = await importSPKI(process.env.JWT_PUBLIC_KEY || '', 'EdDSA')
 
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -17,7 +21,7 @@ export async function verifyAccessToken() {
 
     try {
       const decodedToken = await jwtVerify(accessToken, publicKey)
-      logger.debug(`Decoded token ${decodedToken}`)
+      req.decodedAccessToken = { id: decodedToken.payload.sub ?? '' }
       next()
     } catch (e) {
       logger.debug(`Error verifying token: ${e}`)
