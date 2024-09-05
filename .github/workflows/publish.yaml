@@ -1,25 +1,22 @@
 ##################################################################
-# A Github action used to deploy to Azure
+# A Github action used to publish and deploy to Azure
 # More info at https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
 ##################################################################
 
-name: Deploy to Azure
+name: Publish and deploy to Azure
 on:
-  push:
-    branches: [main]
-
-permissions:
-  id-token: write
-  contents: read
-
-env:
-  AZURE_WEBAPP_NAME: Photos-Map-Web-Api
-  AZURE_WEBAPP_PACKAGE_PATH: '.'
+  release:
+    types: [published]
 
 jobs:
   build:
-    name: Build and package app
+    name: Build and push Docker image to Docker Hub
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
     steps:
       - name: 'Checkout GitHub Action'
         uses: actions/checkout@main
@@ -28,18 +25,34 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}        
+          password: ${{ secrets.DOCKER_PASSWORD }}       
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: sheepf8588/photos-map-web-api
 
       - name: Build and push to Docker Hub
+        id: push
         uses: docker/build-push-action@v5
         with:
+          context: .
+          file: ./Dockerfile
           push: true
-          tags: sheepf8588/photos-map-web-api:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   deploy:
     name: Deploy to Azure
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      AZURE_WEBAPP_NAME: Photos-Map-Web-Api
+      AZURE_WEBAPP_PACKAGE_PATH: '.'
     steps:
       - uses: azure/login@v1
         with:
