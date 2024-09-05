@@ -82,4 +82,30 @@ describe('GET api/v1/photos', () => {
     expect(res.statusCode).toEqual(500)
     expect(res.body).toEqual({})
   })
+
+  it('should return 400 error code, given no "b" parameter', async () => {
+    const app = express()
+    app.use(cookieParser())
+    app.use(await photosRouter(mock<PhotosRepository>()))
+
+    const res = await request(app)
+      .get('/api/v1/photos')
+      .set('Cookie', [`access_token=${token}`])
+
+    expect(res.statusCode).toEqual(400)
+    expect(res.body).toEqual({ error: "Missing 'b' query" })
+  })
+
+  it('should return 400 error code, given invalid "b" query param', async () => {
+    const app = express()
+    app.use(cookieParser())
+    app.use(await photosRouter(mock<PhotosRepository>()))
+
+    const res = await request(app)
+      .get('/api/v1/photos?b=1234')
+      .set('Cookie', [`access_token=${token}`])
+
+    expect(res.statusCode).toEqual(400)
+    expect(res.body).toEqual({ error: 'Item is null' })
+  })
 })

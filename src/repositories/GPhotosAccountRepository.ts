@@ -1,14 +1,17 @@
 import { MongoClient } from 'mongodb'
 import { BehaviorSubject, Subscription } from 'rxjs'
 import { GPhotosClient, GPhotosCredentials } from './GPhotosClient'
+import { Config, getConfig } from '../common/config'
 
 export class GPhotosAccountRepository {
   private mongoDbClient: MongoClient
+  private config: Config
   private gPhotoClients = new Map<string, GPhotosClient>()
   private subscriptions = Array<Subscription>()
 
   constructor(mongoDbClient: MongoClient) {
     this.mongoDbClient = mongoDbClient
+    this.config = getConfig()
   }
 
   async getGPhotosClient(gphotosAccountName: string): Promise<GPhotosClient> {
@@ -32,8 +35,8 @@ export class GPhotosAccountRepository {
     const initialCredentials = {
       accessToken: accountCredentials['token'],
       refreshToken: accountCredentials['refresh_token'],
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || ''
+      clientId: this.config.googleClientId,
+      clientSecret: this.config.googleClientSecret
     }
     const credentials = new BehaviorSubject<GPhotosCredentials>(
       initialCredentials

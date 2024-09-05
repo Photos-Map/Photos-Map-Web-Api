@@ -3,6 +3,7 @@ import qs from 'qs'
 import { backOff } from 'exponential-backoff'
 import { BehaviorSubject } from 'rxjs'
 import logger from '../common/logger'
+import checkNotNull from '../common/checkNotNull'
 
 export type GPhotosCredentials = {
   accessToken: string
@@ -131,10 +132,10 @@ export class GPhotosClient {
     })
 
     this.credentialsSubject.next({
-      accessToken: response.data['access_token'],
-      refreshToken: this.latestCredentials?.refreshToken || '',
-      clientId: this.latestCredentials?.clientId || '',
-      clientSecret: this.latestCredentials?.clientSecret || ''
+      accessToken: checkNotNull(response.data['access_token']),
+      refreshToken: checkNotNull(this.latestCredentials?.refreshToken),
+      clientId: checkNotNull(this.latestCredentials?.clientId),
+      clientSecret: checkNotNull(this.latestCredentials?.clientSecret)
     })
   }
 }

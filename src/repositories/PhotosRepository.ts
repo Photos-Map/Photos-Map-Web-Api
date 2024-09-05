@@ -1,4 +1,5 @@
 import { MongoClient, ObjectId } from 'mongodb'
+import checkNotNull from '../common/checkNotNull'
 
 export type GetPhotosFromBoundaryArgs = {
   lastId?: string
@@ -72,10 +73,7 @@ export class PhotosRepository {
 
     const photos: Photo[] = []
     while (await cursor.hasNext()) {
-      const document = await cursor.next()
-      if (document == null) {
-        break
-      }
+      const document = checkNotNull(await cursor.next())
 
       photos.push({
         id: document._id.toString(),

@@ -72,4 +72,17 @@ describe('GET /api/v1/thumbnails/:id', () => {
     expect(res.statusCode).toEqual(500)
     expect(res.body).toEqual({})
   })
+
+  it('should return 400 code given no account', async () => {
+    const app = express()
+    app.use(cookieParser())
+    app.use(await thumbnailsRouter(mock<ThumbnailUriRepository>()))
+
+    const res = await request(app)
+      .get('/api/v1/thumbnails/123')
+      .set('Cookie', [`access_token=${token}`])
+
+    expect(res.statusCode).toEqual(400)
+    expect(res.body).toEqual({ error: 'Missing account query param' })
+  })
 })

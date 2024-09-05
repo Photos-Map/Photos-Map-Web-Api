@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
-import { jwtVerify, importSPKI, errors } from 'jose'
+import { jwtVerify, importSPKI } from 'jose'
 import logger from '../common/logger'
+import { getConfig } from '../common/config'
 
 export type DecodedAccessToken = {
   id: string
@@ -11,7 +12,7 @@ export type DecodedAccessToken = {
  * @returns an Express middleware
  */
 export async function verifyAuthentication() {
-  const publicKey = await importSPKI(process.env.JWT_PUBLIC_KEY || '', 'EdDSA')
+  const publicKey = await importSPKI(getConfig().jwtPublicKey, 'EdDSA')
 
   return async (req: Request, res: Response, next: NextFunction) => {
     const accessToken = req.cookies['access_token']
@@ -26,10 +27,7 @@ export async function verifyAuthentication() {
     } catch (e) {
       logger.debug(`Error verifying token: ${e}`)
 
-      if (e instanceof errors.JOSEError) {
-        return res.status(401).json({ error: e.code })
-      }
-      return res.status(401).json({ error: e })
+      return res.status(401).json({ error: 'Invalid access token' })
     }
   }
 }
