@@ -22,7 +22,7 @@ export default async function (thumbnailUriRepository: ThumbnailUriRepository) {
         req.query.forceRefresh === 'true'
       )
 
-      res.status(308).redirect(uri)
+      res.status(301).redirect(uri)
     })
   )
 
