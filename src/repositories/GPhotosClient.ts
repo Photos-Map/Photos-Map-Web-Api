@@ -98,6 +98,8 @@ export class GPhotosClient {
         logger.debug(`Error fetching ${url} - retrying`)
 
         if (axios.isAxiosError(error)) {
+          logger.debug(`Error: ${error.response}`)
+
           if ((error as AxiosError).response?.status === 401) {
             logger.debug('Refreshing access token')
             await this.refreshAccessToken()
