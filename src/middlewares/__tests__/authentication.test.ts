@@ -25,10 +25,7 @@ describe('verifyAuthentication()', () => {
   })
 
   it('should return 200, given correct access token', async () => {
-    const secretKey = await importPKCS8(
-      process.env.JWT_PRIVATE_KEY || '',
-      'EdDSA'
-    )
+    const secretKey = await importPKCS8(fakePrivateKey, 'EdDSA')
     const tokenExpiryTime = new Date(Date.now() + 360000)
     const token = await new SignJWT({ id: '1' })
       .setProtectedHeader({ alg: 'EdDSA' })
@@ -89,6 +86,6 @@ describe('verifyAuthentication()', () => {
       .set('Cookie', ['access_token=1234'])
 
     expect(res.statusCode).toEqual(401)
-    expect(res.body.error).toEqual('ERR_JWS_INVALID')
+    expect(res.body.error).toEqual('Invalid access token')
   })
 })

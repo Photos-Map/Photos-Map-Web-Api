@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction } from 'express'
 import logger from '../common/logger'
+import { getConfig } from '../common/config'
 
 /**
  * Middleware that checks if the user has the authorization to view the resource.
  * @returns an Express middleware
  */
 export async function verifyAuthorization() {
-  const validSubject = process.env.ALLOWED_SUBJECT ?? ''
+  const validSubject = getConfig().allowedSubject
 
   return async (req: Request, res: Response, next: NextFunction) => {
     if (req.decodedAccessToken.id === validSubject) {

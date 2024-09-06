@@ -3,14 +3,17 @@ import passport from 'passport'
 import { Strategy, VerifyCallback, Profile } from 'passport-google-oauth20'
 import { wrap } from 'async-middleware'
 import { SignJWT, importPKCS8 } from 'jose'
+import { getConfig } from '../common/config'
 
 export default async function () {
+  const config = getConfig()
+
   passport.use(
     new Strategy(
       {
-        clientID: process.env.GOOGLE_CLIENT_ID || '',
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-        callbackURL: process.env.GOOGLE_CALLBACK_URI || ''
+        clientID: config.googleClientId,
+        clientSecret: config.googleClientSecret,
+        callbackURL: config.googleCallbackUri
       },
       function (
         _accessToken: string,
@@ -23,10 +26,7 @@ export default async function () {
     )
   )
 
-  const secretKey = await importPKCS8(
-    process.env.JWT_PRIVATE_KEY || '',
-    'EdDSA'
-  )
+  const secretKey = await importPKCS8(config.jwtPrivateKey, 'EdDSA')
 
   const expiryMillis = Number(process.env.JWT_EXPIRY_IN_MILLISECONDS) || 3600000
 
